@@ -1,29 +1,48 @@
 #include "client.h"
+#include "charts/session.h"
 
-Client::Client(string host, int port) {
-    // setup variables
-    host_ = host;
-    port_ = port;
-    buflen_ = 1024;
-    buf_ = new char[buflen_+1];
+Client::Client(std::string host, int port, Session *session) :
+    session_(session),
+    host_(host),
+    port_(port),
+    buflen_(1024),
+    buf_(new char[buflen_+1]),
+    running_(true)
+{
+
 }
 
 Client::~Client() {
 }
 
-void Client::run() {
+void Client::run(int instances, int packetSize) {
     qInfo() << "Client::run";
-    std::thread(&Client::start_thread, this).detach();
+    std::thread(&Client::instance_thread, this, instances, packetSize).detach();
 }
 
-void Client::start_thread(){
-    qInfo() << "Client::start_thread";
+void Client::stop() {
+    running_ = false;
+}
+
+void Client::instance_thread(int instances, int packetSize) {
+    qInfo() << "Client::instance_thread";
+    for(int i=0; i<instances; i++) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::thread(&Client::client_thread, this, packetSize).detach();
+    }
+}
+
+void Client::client_thread(int packetSize) {
+    qInfo() << "Client::client_thread";
     // connect to the server and run echo program
-    create();
-    echo();
+    session_->addClient();
+    int server_;
+    create(server_);
+    echo(server_, packetSize);
+    session_->removeClient();
 }
 
-void Client::create() {
+void Client::create(int &server_) {
     qInfo() << "Client::create";
     struct sockaddr_in server_addr;
 
@@ -31,7 +50,6 @@ void Client::create() {
     struct hostent *hostEntry;
     hostEntry = gethostbyname(host_.c_str());
     if (!hostEntry) {
-        //cout << "No such host name: " << host_ << endl;
         qCritical() << "Client::create" << "No such host name:" << host_.c_str();
         exit(-1);
     }
@@ -43,67 +61,56 @@ void Client::create() {
     memcpy(&server_addr.sin_addr, hostEntry->h_addr_list[0], hostEntry->h_length);
 
     // create socket
-    server_ = socket(PF_INET,SOCK_STREAM,0);
+    server_ = socket(AF_INET, SOCK_STREAM, 0);
     if (!server_) {
-        //perror("socket");
         qCritical() << "Client::create" << "Socket Failure";
         exit(-1);
     }
 
     // connect to server
     if (connect(server_,(const struct sockaddr *)&server_addr,sizeof(server_addr)) < 0) {
-        //perror("connect");
         qCritical() << "Client::create" << "Connection Failure";
         exit(-1);
     }
     qCritical() << "Client::create" << "Connected";
 }
 
-void Client::close_socket() {
+void Client::close_socket(int &server_) {
     qInfo() << "Client::close_socket";
     close(server_);
 }
 
-void Client::echo() {
-    qInfo() << "Client::echo";
-    string line;
 
-//    // loop to handle user interface
-//    while (getline(cin,line)) {
-//        // append a newline
-//        line += "\n";
-//        // send request
-//        bool success = send_request(line);
-//        // break if an error occurred
-//        if (not success)
-//            break;
-//        // get a response
-//        success = get_response();
-//        // break if an error occurred
-//        if (not success)
-//            break;
-//    }
+void Client::echo(int &server_, int packetSize) {
+    qInfo() << "Client::echo";
+    std::string line;
 
     int i = 0;
-    while(i < 1000){
-        line = "Packet#" + std::to_string(i) +"\n";
+    while(running_){
+        line = std::string(packetSize-1, 'x');
+        line += "\n";
+        //line = "Packet#" + std::to_string(i) +"\n";
         // send request
-        bool success = send_request(line);
+        bool success = send_request(server_, line);
         // break if an error occurred
-        if (not success)
+        if (!success)
             break;
+        session_->addDataSent(line.length());
+        session_->addRequest();
         // get a response
-        success = get_response();
+        success = get_response(server_);
         // break if an error occurred
-        if (not success)
+        if (!success)
             break;
+
+        session_->addDataRecv(line.length());
+        session_->addResponse();
         i++;
     }
-
-    close_socket();
+    close_socket(server_);
 }
 
-bool Client::send_request(string request) {
+bool Client::send_request(int &server_, std::string request) {
     // prepare to send request
     const char* ptr = request.c_str();
     int nleft = request.length();
@@ -126,15 +133,15 @@ bool Client::send_request(string request) {
         nleft -= nwritten;
         ptr += nwritten;
     }
-    qInfo() << "Client::send_request" << request.substr(0, request.size()-1).c_str();
+    //qInfo() << "Client::send_request" << request.substr(0, request.size()-1).c_str();
     return true;
 }
 
-bool Client::get_response() {
-    string response = "";
+bool Client::get_response(int &server_) {
+    std::string response = "";
     // read until we get a newline
-    while (response.find("\n") == string::npos) {
-        int nread = recv(server_,buf_,1024,0);
+    while (response.find("\n") == std::string::npos) {
+        int nread = recv(server_, buf_, 1024, 0);
         if (nread < 0) {
             if (errno == EINTR)
                 // the socket call was interrupted -- try again
@@ -147,11 +154,11 @@ bool Client::get_response() {
             return "";
         }
         // be sure to use append in case we have binary data
-        response.append(buf_,nread);
+        response.append(buf_, nread);
     }
     // a better client would cut off anything after the newline and
     // save it in a cache
-    qInfo() << "Client::get_response" << response.substr(0, response.size()-1).c_str();
+    //qInfo() << "Client::get_response" << response.substr(0, response.size()-1).c_str();
     return true;
 }
 

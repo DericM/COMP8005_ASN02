@@ -1,11 +1,12 @@
 #ifndef RESPONSESCHART_H
 #define RESPONSESCHART_H
 
+#include "chartview.h"
 
-class ResponsesChart
+class ResponsesChart : public ChartView
 {
 public:
-    ResponsesChart();
+    explicit ResponsesChart(QWidget *parent = 0);
 };
 
 #endif // RESPONSESCHART_H

@@ -1,11 +1,12 @@
 #ifndef SENDCHART_H
 #define SENDCHART_H
 
+#include "chartview.h"
 
-class SendChart
+class SendChart : public ChartView
 {
 public:
-    SendChart();
+    explicit SendChart(QWidget *parent = 0);
 };
 
 #endif // SENDCHART_H

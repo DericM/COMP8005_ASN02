@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TSMainWindow</class>
- <widget class="QMainWindow" name="TSMainWindow">
+ <class>SMainWindow</class>
+ <widget class="QMainWindow" name="SMainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>684</width>
-    <height>575</height>
+    <width>282</width>
+    <height>64</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Threaded Server</string>
+   <string>Server</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="Start">

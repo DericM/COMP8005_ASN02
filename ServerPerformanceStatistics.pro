@@ -5,6 +5,8 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += charts
+
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -29,20 +31,36 @@ SOURCES += \
     servers/selectserver.cpp \
     ui/cmainwindow.cpp \
     ui/mainwindow.cpp \
-    ui/tsmainwindow.cpp \
     client/client.cpp \
-    servers/server.cpp
+    servers/server.cpp \
+    ui/smainwindow.cpp \
+    servers/epollserver.cpp \
+    charts/chartview.cpp \
+    charts/session.cpp \
+    charts/recvchart.cpp \
+    charts/sendchart.cpp \
+    charts/clientchart.cpp \
+    charts/requestschart.cpp \
+    charts/responseschart.cpp
 
 HEADERS += \
     servers/selectserver.h \
     servers/threadedserver.h \
     ui/cmainwindow.h \
     ui/mainwindow.h \
-    ui/tsmainwindow.h \
     client/client.h \
-    servers/server.h
+    servers/server.h \
+    ui/smainwindow.h \
+    servers/epollserver.h \
+    charts/chartview.h \
+    charts/session.h \
+    charts/recvchart.h \
+    charts/sendchart.h \
+    charts/clientchart.h \
+    charts/requestschart.h \
+    charts/responseschart.h
 
 FORMS += \
     ui/cmainwindow.ui \
     ui/mainwindow.ui \
-    ui/tsmainwindow.ui
+    ui/smainwindow.ui

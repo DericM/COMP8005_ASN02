@@ -17,28 +17,32 @@
 
 #include <QDebug>
 
-using namespace std;
+#include "charts/session.h"
 
 class Client {
 public:
-    Client(string host, int port);
+    Client(std::string host, int port, Session *session);
     ~Client();
 
-    void run();
+    void run(int, int);
+    void stop();
 
 private:
-    virtual void create();
-    virtual void close_socket();
-    void start_thread();
-    void echo();
-    bool send_request(string);
-    bool get_response();
+    virtual void create(int&);
+    virtual void close_socket(int&);
+    void instance_thread(int, int);
+    void client_thread(int);
+    void echo(int&, int);
+    bool send_request(int&, std::string);
+    bool get_response(int&);
 
-    string host_;
+
+    Session *session_;
+    std::string host_;
     int port_;
-    int server_;
     int buflen_;
     char* buf_;
+    bool running_;
 };
 
 #endif // CLIENT_H

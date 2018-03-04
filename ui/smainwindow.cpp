@@ -1,23 +1,51 @@
-#include "tsmainwindow.h"
-#include "ui_tsmainwindow.h"
-#include <QDebug>
+#include "smainwindow.h"
+#include "ui_smainwindow.h"
 
-TSMainWindow::TSMainWindow(QWidget *parent) :
+SMainWindow::SMainWindow( ServerType type, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::TSMainWindow)
+    ui(new Ui::SMainWindow),
+    type_(type)
 {
     ui->setupUi(this);
+
+    switch(type_) {
+        case ServerType::Threaded :
+            setWindowTitle("Threaded Server");
+            break;
+        case ServerType::Select :
+            setWindowTitle("Select Server");
+            break;
+        case ServerType::Epoll :
+            setWindowTitle("Epoll Server");
+            break;
+    }
 }
 
-TSMainWindow::~TSMainWindow()
+SMainWindow::~SMainWindow()
 {
     delete ui;
 }
 
-void TSMainWindow::on_Start_clicked()
+void SMainWindow::on_Start_clicked()
 {
     int port = ui->port->text().toInt();
-    qInfo() << "TSMainWindow::on_Start_clicked" << "port:" << port;
-    server = new ThreadedServer(port);
+
+    session = new Session(this);
+
+    switch(type_) {
+        case ServerType::Threaded :
+            server = new ThreadedServer(port, session);
+            break;
+        case ServerType::Select :
+            server = new SelectServer(port, session);
+            break;
+        case ServerType::Epoll :
+            server = new EpollServer(port, session);
+            break;
+    }
+
     server->run();
+
+    ui->Start->setEnabled(false);
+    ui->port->setEnabled(false);
 }

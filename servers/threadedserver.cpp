@@ -1,6 +1,6 @@
 #include "threadedserver.h"
 
-ThreadedServer::ThreadedServer(int port) : Server(port) {
+ThreadedServer::ThreadedServer(int port, Session *session) : Server(port, session) {
 }
 
 void ThreadedServer::serve() {

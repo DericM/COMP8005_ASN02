@@ -12,27 +12,29 @@
 #include <thread>
 #include <string>
 #include <QDebug>
+#include "charts/session.h"
 
 class Server {
 public:
-    Server(int port);
+    Server(int port, Session *session);
     ~Server();
     void run();
 
 protected:
     void handle(int);
     void close_socket();
-    virtual void serve()=0;
+    virtual void create();
+    virtual void serve();
 
+    Session *session_;
     int server_;
+    int port_;
 
 private:
     void start_thread();
-    void create();
     std::string get_request(int);
     bool send_response(int, std::string);
 
-    int port_;
     int buflen_;
     char* buf_;
 };

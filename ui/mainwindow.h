@@ -18,7 +18,11 @@ public:
 private slots:
     void on_Client_clicked();
 
-    void on_startThreadedServer_clicked();
+    void on_ThreadedServer_clicked();
+
+    void on_SelectServer_clicked();
+
+    void on_EpollServer_clicked();
 
 private:
     Ui::MainWindow *ui;

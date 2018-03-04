@@ -1,11 +1,12 @@
 #ifndef REQUESTSCHART_H
 #define REQUESTSCHART_H
 
+#include "chartview.h"
 
-class RequestsChart
+class RequestsChart : public ChartView
 {
 public:
-    RequestsChart();
+    explicit RequestsChart(QWidget *parent = 0);
 };
 
 #endif // REQUESTSCHART_H

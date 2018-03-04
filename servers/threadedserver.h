@@ -3,13 +3,11 @@
 
 #include "server.h"
 
-class ThreadedServer : public Server{
+class ThreadedServer : public Server {
 public:
-    ThreadedServer(int port);
-
+    ThreadedServer(int port, Session *session);
 protected:
     void serve();
-
 };
 
 #endif // THREADEDSERVER_H

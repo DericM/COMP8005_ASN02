@@ -1,11 +1,12 @@
 #ifndef RECVCHART_H
 #define RECVCHART_H
 
+#include "chartview.h"
 
-class RecvChart
+class RecvChart : public ChartView
 {
 public:
-    RecvChart();
+    explicit RecvChart(QWidget *parent = 0);
 };
 
 #endif // RECVCHART_H

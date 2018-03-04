@@ -1,11 +1,12 @@
 #ifndef CLIENTCHART_H
 #define CLIENTCHART_H
 
+#include "chartview.h"
 
-class ClientChart
+class ClientChart : public ChartView
 {
 public:
-    ClientChart();
+    explicit ClientChart(QWidget *parent = 0);
 };
 
 #endif // CLIENTCHART_H
